@@ -1,10 +1,13 @@
-import { db } from "../db";
+import { connectDB, getDB } from "../db";
 import { generateUnicCode } from "../utils/unicCode";
 
 let usedUnicCode = new Set<number>();
 
 export const generateOrder = async () => {
     if (usedUnicCode.size >= 10) usedUnicCode.clear();
+
+    await connectDB();
+    const db = getDB();
 
     const kodeUnik = generateUnicCode(usedUnicCode);
     usedUnicCode.add(kodeUnik);

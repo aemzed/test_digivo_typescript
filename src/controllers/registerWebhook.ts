@@ -1,9 +1,12 @@
 import axios from "axios";
 import { createHmac } from "crypto";
-import { db } from "../db";
+import { connectDB, getDB } from "../db";
 
 export const notifyWebhooks = async (payload: object) => {
-    const [hooks] = await db.query<any[]>(`SELECT * FROM webhooks`);
+    await connectDB();
+    const db = getDB();
+
+    const [hooks] = await db.query(`SELECT * FROM webhooks`);
     const jsonPayload = JSON.stringify(payload);
 
     for (const hook of hooks) {

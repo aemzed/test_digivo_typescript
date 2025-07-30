@@ -1,8 +1,11 @@
 import { Request, Response } from "express";
-import { db } from "../db";
+import { connectDB, getDB } from "../db";
 import crypto from "crypto";
 
 export const registerWebhook = async (req: Request, res: Response) => {
+    await connectDB();
+    const db = getDB();
+
     const { url, secret_key } = req.body;
     if (!url || !secret_key) {
         return res.status(400).json({ status: false, message: "Missing url or secret_key" });

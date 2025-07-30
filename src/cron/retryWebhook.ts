@@ -1,15 +1,18 @@
 import axios from "axios";
 import crypto from "crypto";
-import { db } from "../db";
+import { connectDB, getDB } from "../db";
 
 export const retryFailedWebhooks = async () => {
-    const [logs] = await db.query<any[]>(`
+    await connectDB();
+    const db = getDB();
+
+    const [logs] = await db.query(`
         SELECT * FROM webhook_logs
         WHERE success = FALSE AND attempt < 3 AND next_attempt_at <= NOW()
     `);
 
     for (const log of logs as any[]) {
-        const [[hook]] = await db.query<any[]>(`SELECT * FROM webhooks WHERE id = ?`, [log.webhook_id]);
+        const [[hook]] = await db.query(`SELECT * FROM webhooks WHERE id = ?`, [log.webhook_id]);
         const signature = crypto
             .createHmac("sha256", hook.secret_key)
             .update(log.payload)
